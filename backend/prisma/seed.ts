@@ -82,6 +82,14 @@ const templates = [
     description: 'Deep blacks and charcoal with striking metallic accents.',
     previewImage: '/templates/dark_luxury.jpg',
     componentName: 'DarkLuxury'
+  },
+  {
+    slug: 'our-next-chapter',
+    name: 'Our Next Chapter',
+    category: 'Editorial',
+    description: 'A warm scrapbook-style wedding story with editorial details and collected memories.',
+    previewImage: '/templates/our_next_chapter.jpg',
+    componentName: 'OurNextChapter'
   }
 ];
 
