@@ -30,7 +30,7 @@ export default function Editor() {
 
   if (!selectedTemplate) return null;
 
-  const totalSteps = 5;
+  const totalSteps = 6;
   const handleNext = () => setCurrentStep(p => Math.min(p + 1, totalSteps));
   const handlePrev = () => setCurrentStep(p => Math.max(p - 1, 1));
 
@@ -44,6 +44,67 @@ export default function Editor() {
     updateData({
       events: weddingData.events.filter(e => e.id !== id)
     });
+  };
+
+  const addStory = () => {
+    updateData({
+      story: [...weddingData.story, {
+        id: uuidv4(),
+        title: '',
+        date: '',
+        description: '',
+        order: weddingData.story.length
+      }]
+    });
+  };
+
+  const removeStory = (id: string) => {
+    updateData({ story: weddingData.story.filter(item => item.id !== id) });
+  };
+
+  const updateStory = (id: string, field: string, value: string) => {
+    updateData({
+      story: weddingData.story.map(item => item.id === id ? { ...item, [field]: value } : item)
+    });
+  };
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const uploaded = [];
+    for (const file of files) {
+      if (!file.type.startsWith('image/') || file.size > MAX_IMAGE_SIZE) continue;
+      try {
+        const { api } = await import('../services/api');
+        const media = await api.uploadMedia(file);
+        uploaded.push({
+          id: uuidv4(),
+          mediaId: media.id,
+          mediaUrl: media.url,
+          caption: '',
+          order: weddingData.gallery.length + uploaded.length
+        });
+      } catch (error) {
+        console.error('Failed to upload gallery image:', error);
+      }
+    }
+
+    if (uploaded.length) updateData({ gallery: [...weddingData.gallery, ...uploaded] });
+    e.target.value = '';
+  };
+
+  const removeGalleryImage = async (id: string) => {
+    const image = weddingData.gallery.find(item => item.id === id);
+    if (image?.mediaId) {
+      try {
+        const { api } = await import('../services/api');
+        await api.deleteMedia(image.mediaId);
+      } catch {
+        // Keep the editor usable even if cleanup fails.
+      }
+    }
+    updateData({ gallery: weddingData.gallery.filter(item => item.id !== id) });
   };
 
   const updateEvent = (id: string, field: string, value: string) => {
@@ -287,6 +348,87 @@ export default function Editor() {
             )}
 
             {currentStep === 5 && (
+              <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                <h3 className="text-xl font-medium mb-2 text-gray-900">Website Sections</h3>
+                <p className="text-sm text-gray-500 mb-6">Shape the full wedding website. Changes appear instantly in the preview.</p>
+
+                <div className="space-y-6">
+                  <div className="p-5 border border-gray-200 rounded-2xl bg-gray-50">
+                    <h4 className="font-medium mb-4">Hero</h4>
+                    <div className="space-y-3">
+                      <input className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none" placeholder="Hero label" value={weddingData.website?.heroTitle || ''} onChange={e => updateData({ website: { ...weddingData.website!, heroTitle: e.target.value } })} />
+                      <textarea className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none h-24 resize-none" placeholder="Introduction text" value={weddingData.website?.introText || ''} onChange={e => updateData({ website: { ...weddingData.website!, introText: e.target.value } })} />
+                    </div>
+                  </div>
+
+                  <div className="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="font-medium">Our Story</h4>
+                        <p className="text-xs text-gray-500">Add milestones to the story section.</p>
+                      </div>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input type="checkbox" checked={weddingData.website?.showStory !== false} onChange={e => updateData({ website: { ...weddingData.website!, showStory: e.target.checked } })} />
+                        Show
+                      </label>
+                    </div>
+                    <input className="w-full p-3 mb-3 bg-gray-50 border border-gray-200 rounded-xl outline-none" placeholder="Section title" value={weddingData.website?.storyTitle || ''} onChange={e => updateData({ website: { ...weddingData.website!, storyTitle: e.target.value } })} />
+                    <div className="space-y-4">
+                      {weddingData.story.map((item, index) => (
+                        <div key={item.id} className="p-4 rounded-xl border border-gray-200 bg-gray-50">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs uppercase tracking-widest text-gray-400">Chapter {index + 1}</span>
+                            <button onClick={() => removeStory(item.id)} className="text-red-500 text-xs">Remove</button>
+                          </div>
+                          <div className="space-y-3">
+                            <input className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none" placeholder="Title" value={item.title} onChange={e => updateStory(item.id, 'title', e.target.value)} />
+                            <input className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none" placeholder="Date" value={item.date || ''} onChange={e => updateStory(item.id, 'date', e.target.value)} />
+                            <textarea className="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none h-24 resize-none" placeholder="Tell the story..." value={item.description} onChange={e => updateStory(item.id, 'description', e.target.value)} />
+                          </div>
+                        </div>
+                      ))}
+                      <button onClick={addStory} className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:text-gray-900">+ Add Story Milestone</button>
+                    </div>
+                  </div>
+
+                  <div className="p-5 border border-gray-200 rounded-2xl bg-white">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h4 className="font-medium">Gallery</h4>
+                        <p className="text-xs text-gray-500">Upload multiple couple photos.</p>
+                      </div>
+                      <label className="cursor-pointer px-4 py-2 rounded-lg bg-gray-900 text-white text-sm">
+                        Upload
+                        <input type="file" accept="image/*" multiple className="hidden" onChange={handleGalleryUpload} />
+                      </label>
+                    </div>
+                    {weddingData.gallery.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {weddingData.gallery.map(image => (
+                          <div key={image.id} className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+                            {image.mediaUrl && <img src={image.mediaUrl} alt="" className="w-full h-full object-cover" />}
+                            <button onClick={() => removeGalleryImage(image.id)} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white text-xs">×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="p-4 border border-gray-200 rounded-xl bg-gray-50 text-sm">
+                      <span className="block font-medium mb-2">Primary color</span>
+                      <input type="color" value={weddingData.website?.primaryColor || '#8B6B3F'} onChange={e => updateData({ website: { ...weddingData.website!, primaryColor: e.target.value } })} className="w-full h-10" />
+                    </label>
+                    <label className="p-4 border border-gray-200 rounded-xl bg-gray-50 text-sm">
+                      <span className="block font-medium mb-2">Background</span>
+                      <input type="color" value={weddingData.website?.backgroundColor || '#F7F4EE'} onChange={e => updateData({ website: { ...weddingData.website!, backgroundColor: e.target.value } })} className="w-full h-10" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 6 && (
               <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                 <h3 className="text-xl font-medium mb-6 text-gray-900">Final Touches</h3>
                 <div className="space-y-8">
