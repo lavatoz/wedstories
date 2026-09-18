@@ -382,17 +382,10 @@ export default function Editor() {
             Close Preview
           </button>
         )}
-        <div className="h-full w-full overflow-hidden flex items-center justify-center p-4 lg:p-12 relative bg-grid-pattern">
-           {/* Phone frame constraint for preview to simulate mobile layout exactly */}
-           <div className="w-full max-w-[412px] h-full max-h-[850px] bg-white shadow-2xl rounded-[2.5rem] overflow-hidden relative border-[12px] border-gray-900 mx-auto flex flex-col">
-             {/* Notch simulation */}
-             <div className="absolute top-0 inset-x-0 h-6 flex justify-center z-[100] pointer-events-none">
-                <div className="w-32 h-6 bg-gray-900 rounded-b-2xl"></div>
-             </div>
-             <div className="flex-1 overflow-y-auto bg-white custom-scrollbar relative z-0">
-                <TemplateRenderer templateId={selectedTemplate.slug} data={weddingData} />
-             </div>
-           </div>
+        <div className="h-full w-full overflow-hidden relative bg-gray-200">
+          <div className="h-full w-full overflow-y-auto custom-scrollbar">
+            <TemplateRenderer templateId={selectedTemplate.slug} data={weddingData} />
+          </div>
         </div>
       </div>
     </div>
