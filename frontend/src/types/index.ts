@@ -16,6 +16,42 @@ export interface MusicData {
   url?: string;
 }
 
+export interface WebsiteSettings {
+  heroTitle?: string;
+  introText?: string;
+  storyTitle?: string;
+  galleryTitle?: string;
+  scheduleTitle?: string;
+  rsvpTitle?: string;
+  wishesTitle?: string;
+  showStory: boolean;
+  showGallery: boolean;
+  showRsvp: boolean;
+  showWishes: boolean;
+  primaryColor: string;
+  backgroundColor: string;
+  headingFont: string;
+  bodyFont: string;
+}
+
+export interface StoryMilestone {
+  id: string;
+  title: string;
+  date?: string;
+  description: string;
+  imageId?: string;
+  imageUrl?: string;
+  order: number;
+}
+
+export interface GalleryImage {
+  id: string;
+  mediaId: string;
+  mediaUrl?: string;
+  caption?: string;
+  order: number;
+}
+
 export interface WeddingData {
   brideName: string;
   groomName: string;
@@ -40,6 +76,9 @@ export interface WeddingData {
   rsvpPhone?: string;
   customMessage?: string;
   music?: MusicData;
+  website?: WebsiteSettings;
+  story: StoryMilestone[];
+  gallery: GalleryImage[];
 }
 
 export interface TemplateData extends WeddingData {
