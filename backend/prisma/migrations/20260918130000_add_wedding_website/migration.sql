@@ -103,4 +103,3 @@ ALTER TABLE "Wish"
   ADD CONSTRAINT "Wish_invitationId_fkey"
   FOREIGN KEY ("invitationId") REFERENCES "Invitation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE "Media" ADD CONSTRAINT "Media_storyImages_fkey_check" CHECK (true);
