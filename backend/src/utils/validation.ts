@@ -9,6 +9,41 @@ export const invitationEventSchema = z.object({
   order: z.number().int().optional().default(0),
 });
 
+
+export const websiteSettingsSchema = z.object({
+  heroTitle: z.string().optional(),
+  introText: z.string().optional(),
+  storyTitle: z.string().optional(),
+  galleryTitle: z.string().optional(),
+  scheduleTitle: z.string().optional(),
+  rsvpTitle: z.string().optional(),
+  wishesTitle: z.string().optional(),
+  showStory: z.boolean().optional(),
+  showGallery: z.boolean().optional(),
+  showRsvp: z.boolean().optional(),
+  showWishes: z.boolean().optional(),
+  primaryColor: z.string().optional(),
+  backgroundColor: z.string().optional(),
+  headingFont: z.string().optional(),
+  bodyFont: z.string().optional(),
+});
+
+export const storyMilestoneSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(1, "Story title is required"),
+  date: z.string().optional(),
+  description: z.string().min(1, "Story description is required"),
+  imageId: z.string().optional().nullable(),
+  order: z.number().int().optional().default(0),
+});
+
+export const galleryImageSchema = z.object({
+  id: z.string().optional(),
+  mediaId: z.string().min(1, "Gallery media is required"),
+  caption: z.string().optional(),
+  order: z.number().int().optional().default(0),
+});
+
 export const invitationSchema = z.object({
   templateId: z.string().min(1, "Template ID is required"),
   brideName: z.string().min(1, "Bride's name is required"),
@@ -32,4 +67,7 @@ export const invitationSchema = z.object({
   musicVolume: z.number().optional().default(0.7),
   
   events: z.array(invitationEventSchema).optional().default([]),
+  website: websiteSettingsSchema.optional(),
+  story: z.array(storyMilestoneSchema).optional().default([]),
+  gallery: z.array(galleryImageSchema).optional().default([]),
 });
