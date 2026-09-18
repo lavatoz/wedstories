@@ -90,7 +90,10 @@ export const getInvitation = async (req: Request, res: Response) => {
         couplePhoto: true,
         bridePhoto: true,
         groomPhoto: true,
-        musicAudio: true
+        musicAudio: true,
+        website: true,
+        story: { orderBy: { order: 'asc' }, include: { image: true } },
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } }
       }
     });
 
@@ -159,7 +162,10 @@ export const updateInvitation = async (req: Request, res: Response) => {
         couplePhoto: true,
         bridePhoto: true,
         groomPhoto: true,
-        musicAudio: true
+        musicAudio: true,
+        website: true,
+        story: { orderBy: { order: 'asc' }, include: { image: true } },
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } }
       }
     });
 
