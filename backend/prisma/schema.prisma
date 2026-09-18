@@ -1,0 +1,94 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Template {
+  id            String       @id @default(uuid())
+  slug          String       @unique
+  name          String
+  category      String
+  description   String?
+  previewImage  String
+  componentName String
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  invitations   Invitation[]
+}
+
+enum MediaType {
+  IMAGE
+  AUDIO
+}
+
+model Media {
+  id           String     @id @default(uuid())
+  type         MediaType
+  originalName String
+  mimeType     String
+  size         Int
+  storageKey   String     @unique
+  url          String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  couplePhotos Invitation[] @relation("CouplePhoto")
+  bridePhotos  Invitation[] @relation("BridePhoto")
+  groomPhotos  Invitation[] @relation("GroomPhoto")
+  musicAudios  Invitation[] @relation("MusicAudio")
+}
+
+model Invitation {
+  id             String            @id @default(uuid())
+  slug           String            @unique
+  templateId     String
+  brideName      String
+  groomName      String
+  weddingDate    String
+  weddingTime    String
+  venue          String
+  location       String
+  customMessage  String?
+  rsvpName       String?
+  rsvpPhone      String?
+  
+  // Media references (Online or IndexedDB fallback)
+  couplePhotoId  String?
+  bridePhotoId   String?
+  groomPhotoId   String?
+  musicName      String?
+  musicAudioId   String?
+  musicEnabled   Boolean           @default(false)
+  musicVolume    Float             @default(0.7)
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  template       Template          @relation(fields: [templateId], references: [slug])
+  events         InvitationEvent[]
+  
+  // Real media relations
+  couplePhoto    Media?            @relation("CouplePhoto", fields: [couplePhotoId], references: [id])
+  bridePhoto     Media?            @relation("BridePhoto", fields: [bridePhotoId], references: [id])
+  groomPhoto     Media?            @relation("GroomPhoto", fields: [groomPhotoId], references: [id])
+  musicAudio     Media?            @relation("MusicAudio", fields: [musicAudioId], references: [id])
+}
+
+model InvitationEvent {
+  id           String     @id @default(uuid())
+  invitationId String
+  name         String
+  date         String
+  time         String
+  venue        String
+  location     String?
+  order        Int        @default(0)
+
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+}
