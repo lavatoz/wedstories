@@ -81,16 +81,9 @@ export default function PublicInvitation() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] bg-grid-pattern flex justify-center items-center w-full relative p-0 md:p-8">
-      <div className="w-full h-screen md:h-auto max-w-[420px] md:max-h-[850px] bg-white relative md:rounded-[2.5rem] md:shadow-2xl overflow-hidden md:border-[10px] border-gray-900 mx-auto flex flex-col">
-        {/* Notch simulation on desktop */}
-        <div className="hidden md:flex absolute top-0 inset-x-0 h-6 justify-center z-[100] pointer-events-none">
-           <div className="w-32 h-6 bg-gray-900 rounded-b-xl"></div>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto bg-white custom-scrollbar relative z-0">
-          <TemplateRenderer templateId={data.templateId} data={data.data} />
-        </div>
+    <div className="min-h-screen w-full bg-white relative">
+      <div className="w-full min-h-screen">
+        <TemplateRenderer templateId={data.templateId} data={data.data} />
       </div>
 
       {/* Floating Action Button for Share */}

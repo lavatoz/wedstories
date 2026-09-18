@@ -26,7 +26,7 @@ export const createInvitation = async (req: Request, res: Response) => {
       counter++;
     }
 
-    const { events, ...invitationData } = data;
+    const { events, website, story, gallery, ...invitationData } = data;
 
     const invitation = await prisma.invitation.create({
       data: {
@@ -37,6 +37,25 @@ export const createInvitation = async (req: Request, res: Response) => {
             ...event,
             order: event.order ?? idx
           }))
+        },
+        website: {
+          create: website ?? {}
+        },
+        story: {
+          create: story.map((item, idx) => ({
+            title: item.title,
+            date: item.date,
+            description: item.description,
+            imageId: item.imageId ?? null,
+            order: item.order ?? idx
+          }))
+        },
+        gallery: {
+          create: gallery.map((item, idx) => ({
+            mediaId: item.mediaId,
+            caption: item.caption,
+            order: item.order ?? idx
+          }))
         }
       },
       include: {
@@ -44,7 +63,10 @@ export const createInvitation = async (req: Request, res: Response) => {
         couplePhoto: true,
         bridePhoto: true,
         groomPhoto: true,
-        musicAudio: true
+        musicAudio: true,
+        website: true,
+        story: { orderBy: { order: 'asc' }, include: { image: true } },
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } }
       }
     });
 
@@ -68,7 +90,10 @@ export const getInvitation = async (req: Request, res: Response) => {
         couplePhoto: true,
         bridePhoto: true,
         groomPhoto: true,
-        musicAudio: true
+        musicAudio: true,
+        website: true,
+        story: { orderBy: { order: 'asc' }, include: { image: true } },
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } }
       }
     });
 
@@ -93,7 +118,7 @@ export const updateInvitation = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: "Invitation not found" });
     }
 
-    const { events, ...invitationData } = data;
+    const { events, website, story, gallery, ...invitationData } = data;
 
     // To update events, we delete existing and recreate them (simplest approach for Phase 2A)
     const invitation = await prisma.invitation.update({
@@ -106,6 +131,30 @@ export const updateInvitation = async (req: Request, res: Response) => {
             ...event,
             order: event.order ?? idx
           }))
+        },
+        website: {
+          upsert: {
+            create: website ?? {},
+            update: website ?? {}
+          }
+        },
+        story: {
+          deleteMany: {},
+          create: story.map((item, idx) => ({
+            title: item.title,
+            date: item.date,
+            description: item.description,
+            imageId: item.imageId ?? null,
+            order: item.order ?? idx
+          }))
+        },
+        gallery: {
+          deleteMany: {},
+          create: gallery.map((item, idx) => ({
+            mediaId: item.mediaId,
+            caption: item.caption,
+            order: item.order ?? idx
+          }))
         }
       },
       include: { 
@@ -113,7 +162,10 @@ export const updateInvitation = async (req: Request, res: Response) => {
         couplePhoto: true,
         bridePhoto: true,
         groomPhoto: true,
-        musicAudio: true
+        musicAudio: true,
+        website: true,
+        story: { orderBy: { order: 'asc' }, include: { image: true } },
+        gallery: { orderBy: { order: 'asc' }, include: { media: true } }
       }
     });
 
